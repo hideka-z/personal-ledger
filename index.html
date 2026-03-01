@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>サプリ在庫管理</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --danger: #dc2626;
+      --ok: #059669;
+      --line: #e5e7eb;
+      --warn-bg: #fff7ed;
+      --warn-border: #fb923c;
+      --radius: 14px;
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 16px 14px 96px;
+    }
+
+    h1 {
+      margin: 6px 0 14px;
+      font-size: 1.5rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (min-width: 640px) {
+      .toolbar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button,
+    .file-label {
+      border: 0;
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      min-height: 46px;
+    }
+
+    button.secondary,
+    .file-label.secondary {
+      background: #374151;
+    }
+
+    button.ghost {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .file-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .meta {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .card-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .card.warn {
+      border-color: var(--warn-border);
+      background: var(--warn-bg);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.12rem;
+    }
+
+    .stock {
+      margin: 2px 0 0;
+      font-weight: 700;
+    }
+
+    .stock.low {
+      color: #9a3412;
+    }
+
+    .small {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .memo {
+      margin-top: 4px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 0.9rem;
+    }
+
+    .btn-row {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-row.secondary-row {
+      margin-top: 8px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .history {
+      margin-top: 12px;
+      border-top: 1px dashed #d1d5db;
+      padding-top: 10px;
+    }
+
+    .history h4 {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .history ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .history li {
+      font-size: 0.86rem;
+      margin-bottom: 3px;
+    }
+
+    dialog {
+      border: none;
+      border-radius: 16px;
+      width: min(94vw, 520px);
+      padding: 0;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    dialog::backdrop {
+      background: rgba(17, 24, 39, 0.5);
+    }
+
+    .modal {
+      padding: 16px;
+    }
+
+    .modal h3 {
+      margin: 0 0 12px;
+      font-size: 1.06rem;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.88rem;
+      color: #374151;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 72px;
+    }
+
+    .modal-actions {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .empty {
+      text-align: center;
+      background: #fff;
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius);
+      padding: 24px 10px;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.77rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e0e7ff;
+      color: #1e3a8a;
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>サプリ在庫管理</h1>
+
+    <div class="toolbar">
+      <button id="addBtn">＋ サプリを追加</button>
+      <div class="actions">
+        <button id="undoBtn" class="secondary" disabled>↶ Undo（1回）</button>
+        <button id="exportBtn" class="ghost">JSONエクスポート</button>
+      </div>
+      <label class="file-label secondary" for="importInput">JSONインポート</label>
+      <input id="importInput" type="file" accept="application/json" />
+    </div>
+
+    <div id="summary" class="meta"></div>
+    <div id="cardList" class="card-list"></div>
+  </div>
+
+  <dialog id="supplementDialog">
+    <form class="modal" id="supplementForm" method="dialog">
+      <h3 id="dialogTitle">サプリ追加</h3>
+      <div class="field">
+        <label for="nameInput">サプリ名（必須）</label>
+        <input id="nameInput" maxlength="60" required />
+      </div>
+      <div class="field">
+        <label for="stockInput">現在在庫数（必須）</label>
+        <input id="stockInput" type="number" min="0" step="0.01" required />
+      </div>
+      <div class="field">
+        <label for="unitInput">単位（例：粒 / g / ml、必須）</label>
+        <input id="unitInput" maxlength="12" required />
+      </div>
+      <div class="field">
+        <label for="thresholdInput">しきい値（任意）</label>
+        <input id="thresholdInput" type="number" min="0" step="0.01" placeholder="未入力なら判定しない" />
+      </div>
+      <div class="field">
+        <label for="memoInput">メモ（任意）</label>
+        <textarea id="memoInput" maxlength="300" placeholder="飲むタイミングなど"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="ghost" id="cancelDialogBtn">キャンセル</button>
+        <button type="submit" id="saveDialogBtn">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = "supplement_inventory_v1";
+      const IMPORT_MAX_ITEMS = 500;
+
+      const state = {
+        supplements: [],
+        editingId: null,
+        undoSnapshot: null,
+      };
+
+      const els = {
+        addBtn: document.getElementById("addBtn"),
+        undoBtn: document.getElementById("undoBtn"),
+        exportBtn: document.getElementById("exportBtn"),
+        importInput: document.getElementById("importInput"),
+        cardList: document.getElementById("cardList"),
+        summary: document.getElementById("summary"),
+        dialog: document.getElementById("supplementDialog"),
+        form: document.getElementById("supplementForm"),
+        dialogTitle: document.getElementById("dialogTitle"),
+        nameInput: document.getElementById("nameInput"),
+        stockInput: document.getElementById("stockInput"),
+        unitInput: document.getElementById("unitInput"),
+        thresholdInput: document.getElementById("thresholdInput"),
+        memoInput: document.getElementById("memoInput"),
+        cancelDialogBtn: document.getElementById("cancelDialogBtn"),
+      };
+
+      function uid() {
+        return "s_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      }
+
+      function toNumber(value) {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : NaN;
+      }
+
+      function deepClone(data) {
+        return JSON.parse(JSON.stringify(data));
+      }
+
+      function formatDate(iso) {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return "不明日時";
+        return d.toLocaleString("ja-JP", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function formatQty(value) {
+        const rounded = Math.round(value * 100) / 100;
+        return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+      }
+
+      function isLowStock(item) {
+        return item.threshold !== null && item.stock <= item.threshold;
+      }
+
+      function sortSupplements(items) {
+        return items.slice().sort((a, b) => {
+          const lowA = isLowStock(a);
+          const lowB = isLowStock(b);
+          if (lowA !== lowB) return lowA ? -1 : 1;
+          return a.name.localeCompare(b.name, "ja");
+        });
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ supplements: state.supplements }));
+      }
+
+      function loadState() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          state.supplements = [];
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(raw);
+          const list = Array.isArray(parsed.supplements) ? parsed.supplements : [];
+          state.supplements = list
+            .map((item) => normalizeItem(item))
+            .filter(Boolean);
+        } catch (_) {
+          state.supplements = [];
+        }
+      }
+
+      function normalizeItem(item) {
+        if (!item || typeof item !== "object") return null;
+        const name = typeof item.name === "string" ? item.name.trim() : "";
+        const unit = typeof item.unit === "string" ? item.unit.trim() : "";
+        const stock = toNumber(item.stock);
+        if (!name || !unit || !Number.isFinite(stock) || stock < 0) return null;
+
+        let threshold = null;
+        if (item.threshold !== null && item.threshold !== undefined && item.threshold !== "") {
+          const t = toNumber(item.threshold);
+          if (Number.isFinite(t) && t >= 0) threshold = t;
+        }
+
+        const memo = typeof item.memo === "string" ? item.memo.slice(0, 300) : "";
+        const history = Array.isArray(item.history)
+          ? item.history
+              .map((h) => {
+                if (!h || typeof h !== "object") return null;
+                const amount = toNumber(h.amount);
+                const at = typeof h.at === "string" ? h.at : "";
+                if (!Number.isFinite(amount) || !at) return null;
+                return { at, amount };
+              })
+              .filter(Boolean)
+              .slice(-5)
+          : [];
+
+        return {
+          id: typeof item.id === "string" && item.id ? item.id : uid(),
+          name,
+          stock: Math.round(stock * 100) / 100,
+          unit,
+          threshold,
+          memo,
+          history,
+        };
+      }
+
+      function snapshotForUndo() {
+        state.undoSnapshot = {
+          supplements: deepClone(state.supplements),
+          at: new Date().toISOString(),
+        };
+        els.undoBtn.disabled = false;
+      }
+
+      function clearUndo() {
+        state.undoSnapshot = null;
+        els.undoBtn.disabled = true;
+      }
+
+      function applyUndo() {
+        if (!state.undoSnapshot) return;
+        state.supplements = deepClone(state.undoSnapshot.supplements);
+        saveState();
+        clearUndo();
+        render();
+      }
+
+      function render() {
+        const sorted = sortSupplements(state.supplements);
+        const lowCount = sorted.filter(isLowStock).length;
+        els.summary.textContent = `全${sorted.length}件 / しきい値以下 ${lowCount}件`;
+
+        if (sorted.length === 0) {
+          els.cardList.innerHTML = '<div class="empty">まだサプリがありません。<br>「＋ サプリを追加」から始めてください。</div>';
+          return;
+        }
+
+        els.cardList.innerHTML = sorted.map((item) => renderCard(item)).join("");
+
+        els.cardList.querySelectorAll("[data-action]").forEach((btn) => {
+          btn.addEventListener("click", handleCardAction);
+        });
+      }
+
+      function renderCard(item) {
+        const low = isLowStock(item);
+        const thresholdText = item.threshold === null ? "未設定" : `${formatQty(item.threshold)} ${item.unit}`;
+        const historyHtml = item.history.length
+          ? `<ul>${item.history.slice().reverse().map((h) => `<li>${formatDate(h.at)}：${h.amount > 0 ? "+" : ""}${formatQty(h.amount)} ${item.unit}</li>`).join("")}</ul>`
+          : "<div class=\"small\">履歴はまだありません</div>";
+
+        return `
+          <article class="card ${low ? "warn" : ""}">
+            <div class="card-header">
+              <div>
+                <h2 class="card-title">${escapeHtml(item.name)}</h2>
+                ${low ? '<div class="tag">しきい値以下</div>' : ""}
+              </div>
+            </div>
+            <div class="stock ${low ? "low" : ""}">在庫：${formatQty(item.stock)} ${escapeHtml(item.unit)}</div>
+            <div class="small">しきい値：${escapeHtml(thresholdText)}</div>
+            ${item.memo ? `<div class="memo">メモ：${escapeHtml(item.memo)}</div>` : ""}
+
+            <div class="btn-row">
+              <button data-action="increase" data-id="${item.id}">＋ 増えた量</button>
+              <button data-action="decrease" data-id="${item.id}" class="danger">－ 使った量</button>
+            </div>
+            <div class="btn-row secondary-row">
+              <button data-action="edit" data-id="${item.id}" class="ghost">編集</button>
+              <button data-action="delete" data-id="${item.id}" class="secondary">削除</button>
+            </div>
+
+            <div class="history">
+              <h4>直近5件の履歴</h4>
+              ${historyHtml}
+            </div>
+          </article>
+        `;
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function openAddDialog() {
+        state.editingId = null;
+        els.dialogTitle.textContent = "サプリ追加";
+        els.form.reset();
+        els.stockInput.value = "0";
+        els.thresholdInput.value = "";
+        els.dialog.showModal();
+      }
+
+      function openEditDialog(item) {
+        state.editingId = item.id;
+        els.dialogTitle.textContent = "サプリ編集";
+        els.nameInput.value = item.name;
+        els.stockInput.value = String(item.stock);
+        els.unitInput.value = item.unit;
+        els.thresholdInput.value = item.threshold === null ? "" : String(item.threshold);
+        els.memoInput.value = item.memo || "";
+        els.dialog.showModal();
+      }
+
+      function closeDialog() {
+        if (els.dialog.open) els.dialog.close();
+      }
+
+      function upsertFromDialog(e) {
+        e.preventDefault();
+        const name = els.nameInput.value.trim();
+        const unit = els.unitInput.value.trim();
+        const stock = toNumber(els.stockInput.value);
+        const thresholdRaw = els.thresholdInput.value.trim();
+        const memo = els.memoInput.value.trim();
+
+        if (!name || !unit || !Number.isFinite(stock) || stock < 0) {
+          alert("サプリ名・在庫数(0以上)・単位は必須です。");
+          return;
+        }
+
+        let threshold = null;
+        if (thresholdRaw !== "") {
+          const t = toNumber(thresholdRaw);
+          if (!Number.isFinite(t) || t < 0) {
+            alert("しきい値は0以上の数値で入力してください。");
+            return;
+          }
+          threshold = Math.round(t * 100) / 100;
+        }
+
+        snapshotForUndo();
+
+        if (state.editingId) {
+          const idx = state.supplements.findIndex((s) => s.id === state.editingId);
+          if (idx >= 0) {
+            const prev = state.supplements[idx];
+            state.supplements[idx] = {
+              ...prev,
+              name,
+              stock: Math.round(stock * 100) / 100,
+              unit,
+              threshold,
+              memo: memo.slice(0, 300),
+            };
+          }
+        } else {
+          state.supplements.push({
+            id: uid(),
+            name,
+            stock: Math.round(stock * 100) / 100,
+            unit,
+            threshold,
+            memo: memo.slice(0, 300),
+            history: [],
+          });
+        }
+
+        saveState();
+        closeDialog();
+        render();
+      }
+
+      function handleCardAction(e) {
+        const action = e.currentTarget.dataset.action;
+        const id = e.currentTarget.dataset.id;
+        const item = state.supplements.find((s) => s.id === id);
+        if (!item) return;
+
+        if (action === "increase" || action === "decrease") {
+          const label = action === "increase" ? "増えた量" : "使った量";
+          const input = prompt(`${item.name} の${label}を入力してください（${item.unit}）`, "1");
+          if (input === null) return;
+          const amount = toNumber(input);
+          if (!Number.isFinite(amount) || amount <= 0) {
+            alert("0より大きい数値を入力してください。");
+            return;
+          }
+
+          snapshotForUndo();
+
+          const nextStock = action === "increase"
+            ? item.stock + amount
+            : Math.max(0, item.stock - amount);
+          const signed = action === "increase" ? amount : -amount;
+
+          item.stock = Math.round(nextStock * 100) / 100;
+          item.history.push({ at: new Date().toISOString(), amount: Math.round(signed * 100) / 100 });
+          item.history = item.history.slice(-5);
+
+          saveState();
+          render();
+          return;
+        }
+
+        if (action === "edit") {
+          openEditDialog(item);
+          return;
+        }
+
+        if (action === "delete") {
+          if (!confirm(`「${item.name}」を削除します。よろしいですか？`)) return;
+          snapshotForUndo();
+          state.supplements = state.supplements.filter((s) => s.id !== item.id);
+          saveState();
+          render();
+        }
+      }
+
+      function exportJson() {
+        const payload = {
+          exportedAt: new Date().toISOString(),
+          supplements: state.supplements,
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `supplements_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function importJson(file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || "{}"));
+            const rawItems = Array.isArray(parsed) ? parsed : parsed.supplements;
+            if (!Array.isArray(rawItems)) {
+              alert("不正なJSON形式です。配列または supplements 配列を含めてください。");
+              return;
+            }
+
+            const normalized = rawItems
+              .slice(0, IMPORT_MAX_ITEMS)
+              .map((item) => normalizeItem(item))
+              .filter(Boolean);
+
+            if (normalized.length === 0) {
+              alert("有効なデータが見つかりませんでした。");
+              return;
+            }
+
+            if (!confirm(`既存データを上書きして ${normalized.length} 件を読み込みます。よろしいですか？`)) {
+              return;
+            }
+
+            snapshotForUndo();
+            state.supplements = normalized;
+            saveState();
+            render();
+            alert("インポートしました。");
+          } catch (_) {
+            alert("JSONの読み込みに失敗しました。");
+          } finally {
+            els.importInput.value = "";
+          }
+        };
+
+        reader.readAsText(file);
+      }
+
+      function bindEvents() {
+        els.addBtn.addEventListener("click", openAddDialog);
+        els.undoBtn.addEventListener("click", applyUndo);
+        els.exportBtn.addEventListener("click", exportJson);
+        els.cancelDialogBtn.addEventListener("click", closeDialog);
+        els.form.addEventListener("submit", upsertFromDialog);
+
+        els.importInput.addEventListener("change", (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          importJson(file);
+        });
+      }
+
+      function init() {
+        loadState();
+        bindEvents();
+        clearUndo();
+        render();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
