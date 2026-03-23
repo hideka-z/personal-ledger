@@ -320,6 +320,21 @@
     </form>
   </dialog>
 
+  <dialog id="quantityDialog">
+    <form class="modal" id="quantityForm" method="dialog">
+      <h3 id="quantityDialogTitle">数量入力</h3>
+      <div class="field">
+        <label for="quantityInput">数量（整数のみ）</label>
+        <input id="quantityInput" type="text" inputmode="numeric" pattern="[0-9]*" required />
+      </div>
+      <div class="small" id="quantityUnitText"></div>
+      <div class="modal-actions">
+        <button type="button" class="ghost" id="cancelQuantityBtn">キャンセル</button>
+        <button type="submit" id="saveQuantityBtn">確定</button>
+      </div>
+    </form>
+  </dialog>
+
   <script>
     (function () {
       const STORAGE_KEY = "supplement_inventory_v1";
@@ -329,6 +344,7 @@
         supplements: [],
         editingId: null,
         undoSnapshot: null,
+        quantityRequest: null,
       };
 
       const els = {
@@ -347,6 +363,12 @@
         thresholdInput: document.getElementById("thresholdInput"),
         memoInput: document.getElementById("memoInput"),
         cancelDialogBtn: document.getElementById("cancelDialogBtn"),
+        quantityDialog: document.getElementById("quantityDialog"),
+        quantityForm: document.getElementById("quantityForm"),
+        quantityDialogTitle: document.getElementById("quantityDialogTitle"),
+        quantityInput: document.getElementById("quantityInput"),
+        quantityUnitText: document.getElementById("quantityUnitText"),
+        cancelQuantityBtn: document.getElementById("cancelQuantityBtn"),
       };
 
       function uid() {
@@ -559,6 +581,41 @@
         if (els.dialog.open) els.dialog.close();
       }
 
+      function closeQuantityDialog() {
+        if (els.quantityDialog.open) els.quantityDialog.close();
+      }
+
+      function requestQuantity(item, action) {
+        return new Promise((resolve) => {
+          const label = action === "increase" ? "増えた量" : "使った量";
+          state.quantityRequest = resolve;
+          els.quantityDialogTitle.textContent = `${item.name} の${label}`;
+          els.quantityUnitText.textContent = `単位: ${item.unit}`;
+          els.quantityForm.reset();
+          els.quantityInput.value = "1";
+          els.quantityDialog.showModal();
+          els.quantityInput.focus();
+          els.quantityInput.select();
+        });
+      }
+
+      function settleQuantityRequest(value) {
+        if (!state.quantityRequest) return;
+        const resolve = state.quantityRequest;
+        state.quantityRequest = null;
+        closeQuantityDialog();
+        resolve(value);
+      }
+
+      function submitQuantityDialog(e) {
+        e.preventDefault();
+        settleQuantityRequest(els.quantityInput.value.trim());
+      }
+
+      function cancelQuantityDialog() {
+        settleQuantityRequest(null);
+      }
+
       function upsertFromDialog(e) {
         e.preventDefault();
         const name = els.nameInput.value.trim();
@@ -614,19 +671,23 @@
         render();
       }
 
-      function handleCardAction(e) {
+      async function handleCardAction(e) {
         const action = e.currentTarget.dataset.action;
         const id = e.currentTarget.dataset.id;
         const item = state.supplements.find((s) => s.id === id);
         if (!item) return;
 
         if (action === "increase" || action === "decrease") {
-          const label = action === "increase" ? "増えた量" : "使った量";
-          const input = prompt(`${item.name} の${label}を入力してください（${item.unit}）`, "1");
+          const input = await requestQuantity(item, action);
           if (input === null) return;
+          if (!/^[0-9]+$/.test(input)) {
+            alert("1以上の整数を入力してください。");
+            return;
+          }
+
           const amount = toNumber(input);
-          if (!Number.isFinite(amount) || amount <= 0) {
-            alert("0より大きい数値を入力してください。");
+          if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) {
+            alert("1以上の整数を入力してください。");
             return;
           }
 
@@ -721,6 +782,12 @@
         els.exportBtn.addEventListener("click", exportJson);
         els.cancelDialogBtn.addEventListener("click", closeDialog);
         els.form.addEventListener("submit", upsertFromDialog);
+        els.cancelQuantityBtn.addEventListener("click", cancelQuantityDialog);
+        els.quantityForm.addEventListener("submit", submitQuantityDialog);
+        els.quantityDialog.addEventListener("cancel", (e) => {
+          e.preventDefault();
+          cancelQuantityDialog();
+        });
 
         els.importInput.addEventListener("change", (e) => {
           const file = e.target.files && e.target.files[0];
