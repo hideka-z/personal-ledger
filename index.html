@@ -48,8 +48,8 @@
     .toolbar {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     .toolbar > :first-child {
@@ -57,7 +57,7 @@
     }
 
     .toolbar-secondary {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: grid;
       grid-template-columns: 1fr;
       gap: 10px;
@@ -224,6 +224,32 @@
       pointer-events: none;
     }
 
+    .toolbar-btn {
+      min-height: 40px;
+      padding: 9px 12px;
+      font-size: 0.9rem;
+      line-height: 1.2;
+    }
+
+    .toolbar-icon-btn {
+      min-height: 40px;
+      padding: 8px;
+      color: #374151;
+      background: #e5e7eb;
+    }
+
+    .toolbar-icon-btn svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
     .history {
       margin-top: 12px;
       border-top: 1px dashed #d1d5db;
@@ -328,9 +354,21 @@
     <div class="small title-note">データはスマホ本体に保存されます<br>エクスポート・インポートはJSON形式です</div>
 
     <div class="toolbar">
-      <button id="addBtn">サプリ追加</button>
-      <button id="exportBtn" class="ghost" aria-label="JSONエクスポート">⤴ JSONエクスポート</button>
-      <label class="file-label secondary" for="importInput" aria-label="JSONインポート">⤵ JSONインポート</label>
+      <button id="addBtn" class="toolbar-btn">サプリ追加</button>
+      <button id="exportBtn" class="ghost toolbar-icon-btn" aria-label="JSONエクスポート">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 16V4" />
+          <path d="M8 8l4-4 4 4" />
+          <path d="M4 20h16" />
+        </svg>
+      </button>
+      <button id="importBtn" type="button" class="secondary toolbar-icon-btn" aria-label="JSONインポート">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 4v12" />
+          <path d="M8 12l4 4 4-4" />
+          <path d="M4 20h16" />
+        </svg>
+      </button>
       <input id="importInput" type="file" accept="application/json" />
     </div>
     <div class="toolbar-secondary">
@@ -402,6 +440,7 @@
         addBtn: document.getElementById("addBtn"),
         undoBtn: document.getElementById("undoBtn"),
         exportBtn: document.getElementById("exportBtn"),
+        importBtn: document.getElementById("importBtn"),
         importInput: document.getElementById("importInput"),
         cardList: document.getElementById("cardList"),
         summary: document.getElementById("summary"),
@@ -854,6 +893,9 @@
         els.addBtn.addEventListener("click", openAddDialog);
         els.undoBtn.addEventListener("click", applyUndo);
         els.exportBtn.addEventListener("click", exportJson);
+        els.importBtn.addEventListener("click", () => {
+          els.importInput.click();
+        });
         els.cancelDialogBtn.addEventListener("click", closeDialog);
         els.form.addEventListener("submit", upsertFromDialog);
         els.cancelQuantityBtn.addEventListener("click", cancelQuantityDialog);
