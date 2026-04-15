@@ -277,14 +277,26 @@
 
     .btn-row {
       margin-top: 12px;
-      display: grid;
-      grid-template-columns: 35% 35%;
-      justify-content: space-between;
-      gap: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
     }
 
     .btn-row button {
       border-radius: 999px;
+      width: 35%;
+      flex: 0 0 35%;
+    }
+
+    .btn-row button[data-action="decrease"] {
+      order: 1;
+      margin-right: 10px;
+    }
+
+    .btn-row button[data-action="increase"] {
+      order: 2;
+      margin-left: 10px;
     }
 
     .icon-actions {
