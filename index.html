@@ -48,6 +48,14 @@
       color: #7a8391;
     }
 
+    .title-note-line {
+      display: block;
+    }
+
+    .title-note-line:nth-child(2) {
+      white-space: nowrap;
+    }
+
     .title-note-icon {
       width: 0.95em;
       height: 0.95em;
@@ -90,18 +98,13 @@
     }
 
     .toolbar-right {
-      justify-content: space-evenly;
+      justify-content: flex-end;
       margin-left: auto;
-      gap: 6px;
+      gap: 2px;
     }
 
     .toolbar-right > button {
-      flex: 1 1 calc(100% / 3);
-      min-width: 0;
-    }
-
-    .toolbar-right .toolbar-icon-btn {
-      width: 100%;
+      flex: 0 0 auto;
       min-width: 0;
     }
 
@@ -194,7 +197,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 4px;
+      gap: 0;
       flex-wrap: nowrap;
       margin-left: auto;
     }
@@ -256,18 +259,22 @@
       gap: 8px;
     }
 
+    .btn-row button {
+      border-radius: 999px;
+    }
+
     .icon-actions {
       display: inline-flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 2px;
+      gap: 0;
       margin-right: 0;
     }
 
     .icon-btn {
       width: auto;
       min-height: 40px;
-      padding: 8px 10px;
+      padding: 8px;
       border: none;
       background: transparent;
       color: #374151;
@@ -303,8 +310,8 @@
     .toolbar-icon-btn {
       min-height: 40px;
       padding: 8px;
-      width: 40px;
-      min-width: 40px;
+      width: 38px;
+      min-width: 38px;
     }
 
     #addBtn {
@@ -312,14 +319,13 @@
     }
 
     #undoBtn {
-      background: #90959d;
-      padding: 9px 8px;
       white-space: nowrap;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      width: 100%;
+      width: 38px;
+      min-width: 38px;
+      color: #6F6578;
     }
 
     #undoBtn svg {
@@ -445,12 +451,13 @@
       <path d="M4 20h16" />
     </symbol>
     <symbol id="icon-edit" viewBox="0 0 24 24">
-      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+      <path d="M3 21l3.6-1 11-11a2.2 2.2 0 0 0-3.1-3.1l-11 11L3 21z" />
+      <path d="M13.5 5.5l3.1 3.1" />
     </symbol>
     <symbol id="icon-delete" viewBox="0 0 24 24">
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M4 7h16" />
+      <path d="M9 4h6" />
+      <path d="M7 7l1 13h8l1-13" />
       <path d="M10 11v6" />
       <path d="M14 11v6" />
     </symbol>
@@ -464,18 +471,20 @@
     <div class="top-area">
       <h1>サプリ在庫管理</h1>
       <div class="title-note">
-        <span class="title-note-text">データはスマホ本体に保存されます</span><br>
-        <span class="title-note-text">上向きアイコンは</span>
-        <!-- 共通アイコン定義を参照 -->
-        <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <use href="#icon-export"></use>
-        </svg>
-        <span class="title-note-text">エクスポート・下向きアイコンは</span>
-        <!-- 共通アイコン定義を参照 -->
-        <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <use href="#icon-import"></use>
-        </svg>
-        <span class="title-note-text">インポート/ファイル形式はJSON</span>
+        <span class="title-note-line">データはスマホ本体に保存されます</span>
+        <span class="title-note-line">
+          上向きアイコンは
+          <!-- 共通アイコン定義を参照 -->
+          <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="#icon-export"></use>
+          </svg>
+          エクスポート・下向きアイコンは
+          <!-- 共通アイコン定義を参照 -->
+          <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <use href="#icon-import"></use>
+          </svg>
+          インポート・ファイル形式はJSON
+        </span>
       </div>
 
       <div class="toolbar">
@@ -483,7 +492,7 @@
           <button id="addBtn" class="toolbar-btn">サプリカード追加</button>
         </div>
         <div class="toolbar-right">
-          <button id="undoBtn" class="secondary toolbar-btn" aria-label="Undo（1回）" disabled>
+          <button id="undoBtn" class="icon-btn toolbar-icon-btn" aria-label="Undo（1回）" disabled>
             <!-- 共通アイコン定義を参照 -->
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <use href="#icon-undo"></use>
