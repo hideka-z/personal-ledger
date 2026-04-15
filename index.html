@@ -85,9 +85,38 @@
     .toolbar {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 0;
       flex-wrap: nowrap;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      flex: 0 0 50%;
+      max-width: 50%;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .toolbar-left {
+      justify-content: flex-start;
+    }
+
+    .toolbar-right {
+      justify-content: space-evenly;
+      margin-left: auto;
+      gap: 6px;
+    }
+
+    .toolbar-right > button {
+      flex: 1 1 calc(100% / 3);
+      min-width: 0;
+    }
+
+    .toolbar-right .toolbar-icon-btn {
+      width: 100%;
+      min-width: 0;
     }
 
     button,
@@ -289,14 +318,29 @@
     }
 
     #addBtn {
-      flex: 1 1 auto;
-      width: auto;
+      width: 100%;
     }
 
     #undoBtn {
-      width: auto;
-      flex: 0 0 auto;
       background: #90959d;
+      padding: 9px 8px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    #undoBtn svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .history {
@@ -423,24 +467,34 @@
       </div>
 
       <div class="toolbar">
-        <button id="addBtn" class="toolbar-btn">サプリカード追加</button>
-        <button id="undoBtn" class="secondary toolbar-btn" disabled>↶ Undo（1回）</button>
-        <button id="exportBtn" class="icon-btn toolbar-icon-btn" aria-label="JSONエクスポート">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M12 16V4" />
-            <path d="M8 8l4-4 4 4" />
-            <path d="M4 20h16" />
-          </svg>
-        </button>
-        <button id="importBtn" type="button" class="icon-btn toolbar-icon-btn" aria-label="JSONインポート">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M12 4v12" />
-            <path d="M8 12l4 4 4-4" />
-            <path d="M4 20h16" />
-          </svg>
-        </button>
-        <input id="importInput" type="file" accept="application/json" />
+        <div class="toolbar-left">
+          <button id="addBtn" class="toolbar-btn">サプリカード追加</button>
+        </div>
+        <div class="toolbar-right">
+          <button id="undoBtn" class="secondary toolbar-btn" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M10 7L6 11l4 4" />
+              <path d="M7 11h7a5 5 0 1 1 0 10h-2" />
+            </svg>
+            <span>Undo（1回）</span>
+          </button>
+          <button id="exportBtn" class="icon-btn toolbar-icon-btn" aria-label="JSONエクスポート">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 16V4" />
+              <path d="M8 8l4-4 4 4" />
+              <path d="M4 20h16" />
+            </svg>
+          </button>
+          <button id="importBtn" type="button" class="icon-btn toolbar-icon-btn" aria-label="JSONインポート">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 4v12" />
+              <path d="M8 12l4 4 4-4" />
+              <path d="M4 20h16" />
+            </svg>
+          </button>
+        </div>
       </div>
+      <input id="importInput" type="file" accept="application/json" />
     </div>
 
     <div id="summary" class="meta"></div>
