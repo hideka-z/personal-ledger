@@ -297,6 +297,14 @@
       justify-content: center;
     }
 
+    .btn-col-used {
+      order: 1;
+    }
+
+    .btn-col-added {
+      order: 2;
+    }
+
     .btn-col button {
       width: 70%;
     }
@@ -824,10 +832,10 @@
             ${item.memo ? `<div class="memo">メモ：${escapeHtml(item.memo)}</div>` : ""}
 
             <div class="btn-row">
-              <div class="btn-col">
+              <div class="btn-col btn-col-used">
                 <button data-action="decrease" data-id="${item.id}" class="danger">－ 使った量</button>
               </div>
-              <div class="btn-col">
+              <div class="btn-col btn-col-added">
                 <button data-action="increase" data-id="${item.id}">＋ 増えた量</button>
               </div>
             </div>
