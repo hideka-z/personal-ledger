@@ -743,7 +743,7 @@
                 return { at, amount };
               })
               .filter(Boolean)
-              .slice(-5)
+              .slice(-3)
           : [];
 
         const now = new Date().toISOString();
@@ -841,7 +841,7 @@
             </div>
 
             <div class="history">
-              <h4>直近5件の履歴</h4>
+              <h4>直近3件の履歴</h4>
               ${historyHtml}
             </div>
           </article>
