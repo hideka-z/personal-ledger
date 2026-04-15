@@ -61,20 +61,6 @@
       stroke-linejoin: round;
     }
 
-    .inline-export-icon,
-    .inline-import-icon {
-      width: 0.95em;
-      height: 0.95em;
-      display: inline-block;
-      vertical-align: -0.12em;
-      margin: 0 0.1em;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
     .top-area {
       background: #fcfcfc;
       border-radius: 12px;
@@ -442,27 +428,49 @@
   </style>
 </head>
 <body>
+  <!-- icon-definitions-start -->
+  <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute; width:0; height:0; overflow:hidden;">
+    <symbol id="icon-export" viewBox="0 0 24 24">
+      <path d="M12 16V4" />
+      <path d="M8 8l4-4 4 4" />
+      <path d="M4 20h16" />
+    </symbol>
+    <symbol id="icon-import" viewBox="0 0 24 24">
+      <path d="M12 4v12" />
+      <path d="M8 12l4 4 4-4" />
+      <path d="M4 20h16" />
+    </symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24">
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+    </symbol>
+    <symbol id="icon-delete" viewBox="0 0 24 24">
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </symbol>
+    <symbol id="icon-undo" viewBox="0 0 24 24">
+      <path d="M10 7L6 11l4 4" />
+      <path d="M7 11h7a5 5 0 1 1 0 10h-2" />
+    </symbol>
+  </svg>
+  <!-- icon-definitions-end -->
   <div class="container">
     <div class="top-area">
       <h1>サプリ在庫管理</h1>
       <div class="title-note">
         <span class="title-note-text">データはスマホ本体に保存されます</span><br>
         <span class="title-note-text">エクスポートは</span>
-        <!-- export-icon-start -->
-        <svg class="inline-export-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 16V4" />
-          <path d="M8 8l4-4 4 4" />
-          <path d="M4 20h16" />
+        <!-- 共通アイコン定義を参照 -->
+        <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <use href="#icon-export"></use>
         </svg>
-        <!-- export-icon-end -->
         <span class="title-note-text">、インポートは</span>
-        <!-- import-icon-start -->
-        <svg class="inline-import-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 4v12" />
-          <path d="M8 12l4 4 4-4" />
-          <path d="M4 20h16" />
+        <!-- 共通アイコン定義を参照 -->
+        <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <use href="#icon-import"></use>
         </svg>
-        <!-- import-icon-end -->
         <span class="title-note-text">（ファイル形式はJSON）</span>
       </div>
 
@@ -471,25 +479,22 @@
           <button id="addBtn" class="toolbar-btn">サプリカード追加</button>
         </div>
         <div class="toolbar-right">
-          <button id="undoBtn" class="secondary toolbar-btn" disabled>
+          <button id="undoBtn" class="secondary toolbar-btn" aria-label="Undo（1回）" disabled>
+            <!-- 共通アイコン定義を参照 -->
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M10 7L6 11l4 4" />
-              <path d="M7 11h7a5 5 0 1 1 0 10h-2" />
+              <use href="#icon-undo"></use>
             </svg>
-            <span>Undo（1回）</span>
           </button>
           <button id="exportBtn" class="icon-btn toolbar-icon-btn" aria-label="JSONエクスポート">
+            <!-- 共通アイコン定義を参照 -->
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 16V4" />
-              <path d="M8 8l4-4 4 4" />
-              <path d="M4 20h16" />
+              <use href="#icon-export"></use>
             </svg>
           </button>
           <button id="importBtn" type="button" class="icon-btn toolbar-icon-btn" aria-label="JSONインポート">
+            <!-- 共通アイコン定義を参照 -->
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 4v12" />
-              <path d="M8 12l4 4 4-4" />
-              <path d="M4 20h16" />
+              <use href="#icon-import"></use>
             </svg>
           </button>
         </div>
@@ -746,16 +751,12 @@
                 <div class="icon-actions">
                   <button data-action="edit" data-id="${item.id}" class="icon-btn" aria-label="編集">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                      <use href="#icon-edit"></use>
                     </svg>
                   </button>
                   <button data-action="delete" data-id="${item.id}" class="icon-btn" aria-label="削除">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path d="M3 6h18" />
-                      <path d="M8 6V4h8v2" />
-                      <path d="M19 6l-1 14H6L5 6" />
-                      <path d="M10 11v6" />
-                      <path d="M14 11v6" />
+                      <use href="#icon-delete"></use>
                     </svg>
                   </button>
                 </div>
