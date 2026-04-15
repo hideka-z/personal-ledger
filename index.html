@@ -61,22 +61,19 @@
       stroke-linejoin: round;
     }
 
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .toolbar > :first-child {
-      grid-column: span 2;
-    }
-
-    .toolbar-secondary {
+    .top-area {
+      background: #fcfcfc;
+      border-radius: 12px;
+      padding: 10px 10px 12px;
       margin-bottom: 12px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0;
+      flex-wrap: nowrap;
     }
 
     button,
@@ -144,7 +141,7 @@
     }
 
     .card {
-      background: var(--card);
+      background: #e1e6f3;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -168,9 +165,9 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 8px;
-      flex-wrap: wrap;
-      padding-right: 2px;
+      gap: 4px;
+      flex-wrap: nowrap;
+      margin-left: auto;
     }
 
     .card-title {
@@ -188,7 +185,7 @@
     }
 
     #exportBtn {
-      color: #9A8FA5;
+      color: #6F6578;
     }
 
     #importBtn {
@@ -196,7 +193,7 @@
     }
 
     button[data-action="increase"] {
-      background: #8AC75A;
+      background: #20a69a;
     }
 
     button[data-action="decrease"] {
@@ -230,8 +227,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 4px;
-      margin-right: -2px;
+      gap: 2px;
+      margin-right: 0;
     }
 
     .icon-btn {
@@ -273,6 +270,19 @@
     .toolbar-icon-btn {
       min-height: 40px;
       padding: 8px;
+      width: 40px;
+      min-width: 40px;
+    }
+
+    #addBtn {
+      flex: 1 1 auto;
+      width: auto;
+    }
+
+    #undoBtn {
+      width: auto;
+      flex: 0 0 auto;
+      background: #90959d;
     }
 
     .history {
@@ -375,44 +385,32 @@
 </head>
 <body>
   <div class="container">
-    <h1>サプリ在庫管理</h1>
-    <div class="title-note">
-      データはスマホ本体に保存されます<br>
-      <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M12 16V4" />
-        <path d="M8 8l4-4 4 4" />
-        <path d="M4 20h16" />
-      </svg>
-      はエクスポート・
-      <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M12 4v12" />
-        <path d="M8 12l4 4 4-4" />
-        <path d="M4 20h16" />
-      </svg>
-      はインポート<br>
-      ファイル形式はJSON
-    </div>
+    <div class="top-area">
+      <h1>サプリ在庫管理</h1>
+      <div class="title-note">
+        データはスマホ本体に保存されます<br>
+        上向きアイコンはエクスポート・下向きアイコンはインポート/ファイル形式はJSON
+      </div>
 
-    <div class="toolbar">
-      <button id="addBtn" class="toolbar-btn">サプリカード追加</button>
-      <button id="exportBtn" class="icon-btn toolbar-icon-btn" aria-label="JSONエクスポート">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 16V4" />
-          <path d="M8 8l4-4 4 4" />
-          <path d="M4 20h16" />
-        </svg>
-      </button>
-      <button id="importBtn" type="button" class="icon-btn toolbar-icon-btn" aria-label="JSONインポート">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 4v12" />
-          <path d="M8 12l4 4 4-4" />
-          <path d="M4 20h16" />
-        </svg>
-      </button>
-      <input id="importInput" type="file" accept="application/json" />
-    </div>
-    <div class="toolbar-secondary">
-      <button id="undoBtn" class="secondary" disabled>↶ Undo（1回）</button>
+      <div class="toolbar">
+        <button id="addBtn" class="toolbar-btn">サプリカード追加</button>
+        <button id="undoBtn" class="secondary toolbar-btn" disabled>↶ Undo（1回）</button>
+        <button id="exportBtn" class="icon-btn toolbar-icon-btn" aria-label="JSONエクスポート">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 16V4" />
+            <path d="M8 8l4-4 4 4" />
+            <path d="M4 20h16" />
+          </svg>
+        </button>
+        <button id="importBtn" type="button" class="icon-btn toolbar-icon-btn" aria-label="JSONインポート">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 4v12" />
+            <path d="M8 12l4 4 4-4" />
+            <path d="M4 20h16" />
+          </svg>
+        </button>
+        <input id="importInput" type="file" accept="application/json" />
+      </div>
     </div>
 
     <div id="summary" class="meta"></div>
