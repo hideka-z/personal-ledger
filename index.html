@@ -6,7 +6,7 @@
   <title>サプリ在庫管理</title>
   <style>
     :root {
-      --bg: #f4f6fb;
+      --bg: #fcfcfc;
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
@@ -222,6 +222,10 @@
     }
 
     button[data-action="increase"] {
+      background: #20a69a;
+    }
+
+    #saveDialogBtn {
       background: #20a69a;
     }
 
@@ -461,17 +465,17 @@
       <h1>サプリ在庫管理</h1>
       <div class="title-note">
         <span class="title-note-text">データはスマホ本体に保存されます</span><br>
-        <span class="title-note-text">エクスポートは</span>
+        <span class="title-note-text">上向きアイコンは</span>
         <!-- 共通アイコン定義を参照 -->
         <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <use href="#icon-export"></use>
         </svg>
-        <span class="title-note-text">、インポートは</span>
+        <span class="title-note-text">エクスポート・下向きアイコンは</span>
         <!-- 共通アイコン定義を参照 -->
         <svg class="title-note-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <use href="#icon-import"></use>
         </svg>
-        <span class="title-note-text">（ファイル形式はJSON）</span>
+        <span class="title-note-text">インポート/ファイル形式はJSON</span>
       </div>
 
       <div class="toolbar">
