@@ -191,21 +191,27 @@
 
     .card-header {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      align-items: flex-start;
       gap: 10px;
       margin-bottom: 8px;
     }
 
-    .card-header-actions {
+    .card-header-main {
       display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 6px;
-      flex-wrap: nowrap;
-      margin-left: auto;
       flex: 1;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
       min-width: 0;
+    }
+
+    .card-icon-group {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      margin-left: auto;
+      gap: 2px;
+      flex: 0 0 auto;
     }
 
     .card-title {
@@ -271,11 +277,10 @@
     }
 
     .icon-actions {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: flex-end;
       gap: 2px;
-      margin-right: -4px;
     }
 
     .icon-btn {
@@ -762,12 +767,12 @@
         return `
           <article class="card ${low ? "warn" : ""}">
             <div class="card-header">
-              <div>
+              <div class="card-header-main">
                 <h2 class="card-title">${escapeHtml(item.name)}</h2>
+                <div class="stock ${low ? "low" : ""}">在庫：${formatQty(item.stock)} ${escapeHtml(item.unit)}</div>
                 ${low ? '<div class="tag">補充目安以下</div>' : ""}
               </div>
-              <div class="card-header-actions">
-                <div class="stock ${low ? "low" : ""}">在庫：${formatQty(item.stock)} ${escapeHtml(item.unit)}</div>
+              <div class="card-icon-group">
                 <div class="icon-actions">
                   <button data-action="edit" data-id="${item.id}" class="icon-btn" aria-label="編集">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
