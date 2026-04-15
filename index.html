@@ -191,23 +191,27 @@
 
     .card-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: space-between;
       gap: 10px;
       margin-bottom: 8px;
+      flex-wrap: nowrap;
     }
 
     .card-header-main {
       display: flex;
       flex: 1;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
       min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .card-icon-group {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: flex-end;
       margin-left: auto;
       margin-right: -6px;
@@ -219,10 +223,16 @@
       margin: 0;
       font-size: 1.12rem;
       font-weight: 700;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .stock {
       font-weight: 700;
+      flex: 0 0 auto;
+      white-space: nowrap;
     }
 
     #addBtn {
@@ -775,7 +785,6 @@
               <div class="card-header-main">
                 <h2 class="card-title">${escapeHtml(item.name)}</h2>
                 <div class="stock ${low ? "low" : ""}">在庫：${formatQty(item.stock)} ${escapeHtml(item.unit)}</div>
-                ${low ? '<div class="tag">補充目安以下</div>' : ""}
               </div>
               <div class="card-icon-group">
                 <div class="icon-actions">
@@ -792,6 +801,7 @@
                 </div>
               </div>
             </div>
+            ${low ? '<div class="tag">補充目安以下</div>' : ""}
             <div class="small">補充目安：${escapeHtml(thresholdText)}</div>
             ${item.memo ? `<div class="memo">メモ：${escapeHtml(item.memo)}</div>` : ""}
 
