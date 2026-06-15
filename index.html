@@ -286,6 +286,16 @@
       padding: 7px 12px;
     }
 
+    button[data-action="adjust"] {
+      background: #F0EBF9;
+      color: var(--primary);
+      border: 1px solid #DED6F0;
+      box-shadow: none;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      min-height: 40px;
+    }
+
     .stock.low {
       color: var(--primary);
     }
@@ -307,6 +317,17 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+    }
+
+    .adjust-row {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .adjust-row button {
+      width: min(70%, 220px);
+      border-radius: 999px;
     }
 
     .btn-col {
@@ -632,6 +653,21 @@
     </form>
   </dialog>
 
+  <dialog id="adjustmentDialog">
+    <form class="modal" id="adjustmentForm" method="dialog">
+      <h3 id="adjustmentDialogTitle">在庫調整</h3>
+      <div class="field">
+        <label for="adjustmentInput">実際の残数（0以上）</label>
+        <input id="adjustmentInput" type="number" min="0" step="0.01" required />
+      </div>
+      <div class="small" id="adjustmentCurrentText"></div>
+      <div class="modal-actions">
+        <button type="button" class="ghost" id="cancelAdjustmentBtn">キャンセル</button>
+        <button type="submit">在庫を上書き</button>
+      </div>
+    </form>
+  </dialog>
+
   <script>
     (function () {
       const STORAGE_KEY = "supplement_inventory_v1";
@@ -642,6 +678,7 @@
         editingId: null,
         undoSnapshot: null,
         quantityRequest: null,
+        adjustmentRequest: null,
       };
 
       const els = {
@@ -667,6 +704,12 @@
         quantityInput: document.getElementById("quantityInput"),
         quantityUnitText: document.getElementById("quantityUnitText"),
         cancelQuantityBtn: document.getElementById("cancelQuantityBtn"),
+        adjustmentDialog: document.getElementById("adjustmentDialog"),
+        adjustmentForm: document.getElementById("adjustmentForm"),
+        adjustmentInput: document.getElementById("adjustmentInput"),
+        adjustmentDialogTitle: document.getElementById("adjustmentDialogTitle"),
+        adjustmentCurrentText: document.getElementById("adjustmentCurrentText"),
+        cancelAdjustmentBtn: document.getElementById("cancelAdjustmentBtn"),
       };
 
       function uid() {
@@ -752,13 +795,29 @@
           ? item.history
               .map((h) => {
                 if (!h || typeof h !== "object") return null;
-                const amount = toNumber(h.amount);
                 const at = typeof h.at === "string" ? h.at : "";
-                if (!Number.isFinite(amount) || !at) return null;
-                return { at, amount };
+                if (!at) return null;
+
+                if (h.type === "adjustment") {
+                  const before = toNumber(h.before);
+                  const after = toNumber(h.after);
+                  const diff = toNumber(h.diff);
+                  if (!Number.isFinite(before) || !Number.isFinite(after) || !Number.isFinite(diff)) return null;
+                  return {
+                    at,
+                    type: "adjustment",
+                    before: Math.round(before * 100) / 100,
+                    after: Math.round(after * 100) / 100,
+                    diff: Math.round(diff * 100) / 100,
+                  };
+                }
+
+                const amount = toNumber(h.amount);
+                if (!Number.isFinite(amount)) return null;
+                return { at, amount: Math.round(amount * 100) / 100 };
               })
               .filter(Boolean)
-              .slice(-3)
+              .slice(-5)
           : [];
 
         const now = new Date().toISOString();
@@ -817,7 +876,7 @@
         const low = isLowStock(item);
         const thresholdText = item.threshold === null ? "未設定" : `${formatQty(item.threshold)} ${item.unit}`;
         const historyHtml = item.history.length
-          ? `<ul>${item.history.slice().reverse().map((h) => `<li><span>${formatDate(h.at)}</span><span class="${h.amount > 0 ? "plus" : "minus"}">${h.amount > 0 ? "+" : "−"}${formatQty(Math.abs(h.amount))} ${item.unit}</span></li>`).join("")}</ul>`
+          ? `<ul>${item.history.slice().reverse().map((h) => renderHistoryItem(h, item.unit)).join("")}</ul>`
           : "<div class=\"small\">履歴はまだありません</div>";
 
         return `
@@ -854,13 +913,27 @@
                 <button data-action="increase" data-id="${item.id}">＋ 増えた量</button>
               </div>
             </div>
+            <div class="adjust-row">
+              <button data-action="adjust" data-id="${item.id}">在庫調整</button>
+            </div>
 
             <div class="history">
-              <h4>直近3件の履歴</h4>
+              <h4>直近5件の履歴</h4>
               ${historyHtml}
             </div>
           </article>
         `;
+      }
+
+      function renderHistoryItem(h, unit) {
+        if (h.type === "adjustment") {
+          const diff = h.diff;
+          const diffText = `${diff >= 0 ? "+" : "−"}${formatQty(Math.abs(diff))}`;
+          const diffClass = diff >= 0 ? "plus" : "minus";
+          return `<li><span>${formatDate(h.at)}</span><span class="${diffClass}">調整：${formatQty(h.before)} → ${formatQty(h.after)}（${diffText}）</span></li>`;
+        }
+
+        return `<li><span>${formatDate(h.at)}</span><span class="${h.amount > 0 ? "plus" : "minus"}">${h.amount > 0 ? "+" : "−"}${formatQty(Math.abs(h.amount))} ${escapeHtml(unit)}</span></li>`;
       }
 
       function escapeHtml(str) {
@@ -898,6 +971,40 @@
 
       function closeQuantityDialog() {
         if (els.quantityDialog.open) els.quantityDialog.close();
+      }
+
+      function closeAdjustmentDialog() {
+        if (els.adjustmentDialog.open) els.adjustmentDialog.close();
+      }
+
+      function requestAdjustment(item) {
+        return new Promise((resolve) => {
+          state.adjustmentRequest = resolve;
+          els.adjustmentDialogTitle.textContent = `${item.name} の在庫調整`;
+          els.adjustmentCurrentText.textContent = `現在の登録在庫: ${formatQty(item.stock)} ${item.unit}`;
+          els.adjustmentForm.reset();
+          els.adjustmentInput.value = String(item.stock);
+          els.adjustmentDialog.showModal();
+          els.adjustmentInput.focus();
+          els.adjustmentInput.select();
+        });
+      }
+
+      function settleAdjustmentRequest(value) {
+        if (!state.adjustmentRequest) return;
+        const resolve = state.adjustmentRequest;
+        state.adjustmentRequest = null;
+        closeAdjustmentDialog();
+        resolve(value);
+      }
+
+      function submitAdjustmentDialog(e) {
+        e.preventDefault();
+        settleAdjustmentRequest(els.adjustmentInput.value.trim());
+      }
+
+      function cancelAdjustmentDialog() {
+        settleAdjustmentRequest(null);
       }
 
       function requestQuantity(item, action) {
@@ -1027,6 +1134,37 @@
           return;
         }
 
+        if (action === "adjust") {
+          const input = await requestAdjustment(item);
+          if (input === null) return;
+
+          const nextStock = toNumber(input);
+          if (!Number.isFinite(nextStock) || nextStock < 0) {
+            alert("実際の残数は0以上の数値で入力してください。");
+            return;
+          }
+
+          const before = item.stock;
+          const after = Math.round(nextStock * 100) / 100;
+          const diff = Math.round((after - before) * 100) / 100;
+
+          snapshotForUndo();
+          item.stock = after;
+          item.history.push({
+            at: new Date().toISOString(),
+            type: "adjustment",
+            before: Math.round(before * 100) / 100,
+            after,
+            diff,
+          });
+          item.history = item.history.slice(-5);
+          item.updatedAt = new Date().toISOString();
+
+          saveState();
+          render();
+          return;
+        }
+
         if (action === "edit") {
           openEditDialog(item);
           return;
@@ -1110,6 +1248,12 @@
         els.quantityDialog.addEventListener("cancel", (e) => {
           e.preventDefault();
           cancelQuantityDialog();
+        });
+        els.cancelAdjustmentBtn.addEventListener("click", cancelAdjustmentDialog);
+        els.adjustmentForm.addEventListener("submit", submitAdjustmentDialog);
+        els.adjustmentDialog.addEventListener("cancel", (e) => {
+          e.preventDefault();
+          cancelAdjustmentDialog();
         });
 
         els.importInput.addEventListener("change", (e) => {
